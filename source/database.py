@@ -157,31 +157,6 @@ class Database:
 
 
 
-
 if __name__ == "__main__":
     d = Database(os.path.abspath(os.path.dirname(__file__)))
     d.encodeDatabase()
-
-
-"""
-
-folders = {
-    'root': 'database',
-    'raw': 'database/raw',
-    'encoded': 'database/encoded',
-    'encoder_users': 'database/encoded/users'
-}
-
-
-typical uid: {32751-07468-29973}.dat
-
-meta.pkl
-{
-    'pre_encoded': {
-        uid: foldername,
-        uid: foldername,
-        uid: foldername
-    }
-}
-
-"""
