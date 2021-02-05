@@ -1,17 +1,16 @@
 {
-    
     "DatabaseConfig": {
         "faceEncodingArgs": {
             "model": "large",
             "num_jitters": 10
         }
     },
-    
     "FaceRecognitionConfig": {
         "window_name": "Camera",
         "draw_name": true,
-        "draw_landmarks": true,
-        "draw_rectangle": true
+        "draw_rectangle": true,
+        "rectangleOffset": 3,
+        "fontFace": "FONT_HERSHEY_COMPLEX",
+        "fontScale": 0.75
     }
-
 }
