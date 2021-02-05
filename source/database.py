@@ -139,12 +139,11 @@ class Database:
         with open(os.path.join(self.folders.encoded_users, '%s.dat' % uid), 'wb') as _file:
             pickle.dump(user, _file)
 
-        self.metadata.pre_encoded[uid] = path[path.rindex('/')+1:]
+        self.metadata.pre_encoded[uid] = user_folder
 
 
     def encodeDatabase(self, output=True) -> None:
         self._checkPreEncoded()
-
         for user_folder in os.listdir(self.folders.raw):
             if user_folder not in self.metadata.pre_encoded.values():
                 self._encodeUser(user_folder)
@@ -165,7 +164,6 @@ if __name__ == "__main__":
 
 
 """
-
 
 folders = {
     'root': 'database',

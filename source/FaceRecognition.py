@@ -14,6 +14,7 @@ class FaceRecognition:
             self.config = type('config', (object,), json.load(_file)['FaceRecognitionConfig'])
         
         self.database = Database(path)
+        self.database.encodeDatabase()
         self.database.loadDatabase()
 
 
@@ -26,7 +27,6 @@ class FaceRecognition:
             results = face_recognition.compare_faces(self.database.Users, encoding)
             
             name = 'Unknown'
-            print(results)
             if True in results:
                 name = self.database.Users[results.index(True)].name
             
@@ -37,7 +37,7 @@ class FaceRecognition:
 
 
     def mainLoop(self) -> None:
-        cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+        cap = cv2.VideoCapture(0)
         
         while True:
             _, frame = cap.read()
