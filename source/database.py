@@ -129,7 +129,6 @@ class Database:
 
         face_image = face_recognition.load_image_file(os.path.join(path, 'face.jpg'))
         face_encoding = face_recognition.face_encodings(face_image, **self.config.faceEncodingArgs)[0]
-        print(face_encoding)
 
         user = {
             'user_data': user_data,
