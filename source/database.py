@@ -4,7 +4,6 @@ import pickle
 import numpy as np
 import face_recognition
 from random import random
-from tabulate import tabulate
 from contextlib import suppress
 
 
