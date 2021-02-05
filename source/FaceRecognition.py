@@ -58,7 +58,7 @@ class FaceRecognition:
                         cv2.rectangle(frame, (left, top), (right, bottom), (250, 250, 250), 1)
             
                     if self.config.draw_name:
-                        textSize, baseLine = cv2.getTextSize(name, fontFace, fontScale, 1)
+                        textSize = cv2.getTextSize(name, fontFace, fontScale, 1)[0]
                         if (right - left) < textSize[0]: right = (left + textSize[0] + rectangleOffset)
 
                         cv2.rectangle(frame, (left, bottom), (right, bottom + 25), (250, 250, 250), -1)
