@@ -157,6 +157,7 @@ class Database:
 
 
 
+
 if __name__ == "__main__":
     d = Database(os.path.abspath(os.path.dirname(__file__)))
     d.encodeDatabase()
