@@ -27,7 +27,7 @@ class Database:
                 setattr(self, attr, content)
 
         
-        def get_data(self) -> str:
+        def get_data(self) -> dict:
             ret = {}
             for key in self.available_attrs:
                 ret[key] = getattr(self, key)
@@ -83,6 +83,11 @@ class Database:
         )
 
 
+    def _removeUser(self, uid):
+        os.remove(os.path.join(self.folders.encoded_users, uid))
+        self.metadata.pre_encoded.pop(uid)
+
+
     def _getMetadata(self) -> None:
         self.metadata = self._createObject('metadata',
             {
@@ -110,17 +115,32 @@ class Database:
     def _checkPreEncoded(self) -> None:
         current_encodings = os.listdir(self.folders.encoded_users)
         for encoded_file in current_encodings:
-            if encoded_file[:encoded_file.index('.dat')] not in self.metadata.pre_encoded:
+            if encoded_file not in self.metadata.pre_encoded:
                 print('[!] Unrecognizable file: %s' % encoded_file)
                 os.remove(os.path.join(self.folders.encoded_users, encoded_file))
 
         for uid in list(self.metadata.pre_encoded):
-            if not str(uid + '.dat') in current_encodings:
-                print('[!] Unable to locate: %s.dat' % uid)
+            if not str(uid) in current_encodings:
+                print('[!] Unable to locate: %s' % uid)
                 self.metadata.pre_encoded.pop(uid)
 
 
-    def _encodeUser(self, user_folder: str) -> None:
+    def _checkModifiedUser(self, encoded_file) -> bool:
+        with open(os.path.join(self.folders.encoded_users, encoded_file), 'rb') as _file:
+            user_encoded = pickle.load(_file)
+        
+        user_folder = self.metadata.pre_encoded[encoded_file]
+        with open(os.path.join(self.folders.raw, f'{user_folder}/user.json'), 'rb') as _file:
+            user_data = json.load(_file)
+        
+        if not user_encoded['user_data'] == user_data:
+            print('[!] Modified user: %s' % encoded_file)
+            return True
+        
+        return False
+
+
+    def _encodeUser(self, user_folder: str, return_user=False) -> dict:
         path = os.path.join(self.folders.raw, user_folder)
         
         with open(os.path.join(path, 'user.json'), 'r') as _file:
@@ -134,11 +154,17 @@ class Database:
             'encoding': face_encoding
         }
 
-        uid = '{%s-%s-%s}' % (str(random())[-5:], str(random())[-5:], str(random())[-5:])
-        with open(os.path.join(self.folders.encoded_users, '%s.dat' % uid), 'wb') as _file:
+        uid = '{%s-%s-%s}.dat' % (str(random())[-5:], str(random())[-5:], str(random())[-5:])
+        encoded_user_file = os.path.join(self.folders.encoded_users, uid)
+        with open(encoded_user_file, 'wb') as _file:
+            if os.stat(encoded_user_file).st_size != 0:
+                _file.truncate()
             pickle.dump(user, _file)
 
         self.metadata.pre_encoded[uid] = user_folder
+        
+        if return_user:
+            return user
 
 
     def encodeDatabase(self, output=True) -> None:
@@ -150,13 +176,22 @@ class Database:
 
 
     def loadDatabase(self) -> None:
-        for filename in os.listdir(self.folders.encoded_users):
-            with open(os.path.join(self.folders.encoded_users, filename), 'rb') as _file:
-                self._addUser(**pickle.load(_file))
+        modified_users = []
 
+        for uid, user_folder in self.metadata.pre_encoded.items():
+            encoded_user_path = os.path.join(self.folders.encoded_users, uid)
+            with open(encoded_user_path, 'rb') as _file:
+                    _data = pickle.load(_file)
+                
+            if self._checkModifiedUser(uid):
+                modified_users.append([uid, user_folder])
+            
+            else:
+                self._addUser(**_data)
+            
+        for uid, user_folder in modified_users:
+            self._removeUser(uid)
+            _data = self._encodeUser(user_folder, True)
+            self._addUser(**_data)
 
-
-
-if __name__ == "__main__":
-    d = Database(os.path.abspath(os.path.dirname(__file__)))
-    d.encodeDatabase()
+        self._updateMetadata()
