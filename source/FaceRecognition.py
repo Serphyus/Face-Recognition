@@ -45,6 +45,7 @@ class FaceRecognition:
         
         if self.config.draw_name:
             fontFace = getattr(cv2, self.config.fontFace)
+            fontColor = self.config.fontColor
             fontScale = self.config.fontScale
             rectangleOffset = self.config.rectangleOffset
         
@@ -55,14 +56,14 @@ class FaceRecognition:
             for name, location in matches:
                 for (top, right, bottom, left) in [location]:
                     if self.config.draw_rectangle:
-                        cv2.rectangle(frame, (left, top), (right, bottom), (250, 250, 250), 1)
+                        cv2.rectangle(frame, (left, top), (right, bottom), self.config.lineColor, 1)
             
                     if self.config.draw_name:
                         textSize = cv2.getTextSize(name, fontFace, fontScale, 1)[0]
                         if (right - left) < textSize[0]: right = (left + textSize[0] + rectangleOffset)
 
-                        cv2.rectangle(frame, (left, bottom), (right, bottom + 25), (250, 250, 250), -1)
-                        cv2.putText(frame, name, (left + rectangleOffset, bottom + 20), fontFace, fontScale, (0, 0, 0), 1, cv2.LINE_AA)
+                        cv2.rectangle(frame, (left, bottom), (right, bottom + 25), self.config.lineColor, -1)
+                        cv2.putText(frame, name, (left + rectangleOffset, bottom + 20), fontFace, fontScale, fontColor, 1, cv2.LINE_AA)
                     
             cv2.imshow(self.config.window_name, frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):

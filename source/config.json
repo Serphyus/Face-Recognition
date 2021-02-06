@@ -7,10 +7,12 @@
     },
     "FaceRecognitionConfig": {
         "window_name": "Camera",
+        "lineColor": [255, 255, 255],
         "draw_name": true,
         "draw_rectangle": true,
         "rectangleOffset": 3,
         "fontFace": "FONT_HERSHEY_COMPLEX",
+        "fontColor": [0, 0, 0],
         "fontScale": 0.75
     }
 }
