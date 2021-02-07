@@ -114,26 +114,37 @@ class Database:
 
     def _checkPreEncoded(self) -> None:
         current_encodings = os.listdir(self.folders.encoded_users)
+        current_user_folders = os.listdir(self.folders.raw)
         for encoded_file in current_encodings:
             if encoded_file not in self.metadata.pre_encoded:
                 print('[!] Unrecognizable file: %s' % encoded_file)
                 os.remove(os.path.join(self.folders.encoded_users, encoded_file))
 
-        for uid in list(self.metadata.pre_encoded):
+        remove_items = []
+        for uid, user_folder in self.metadata.pre_encoded.items():
             if not str(uid) in current_encodings:
                 print('[!] Unable to locate: %s' % uid)
+                remove_items.append(uid)
+            
+            if not user_folder in current_user_folders:
+                print('[!] User folder missing: %s' % user_folder)
+                remove_items.append(uid)
+        
+        for uid in remove_items:
+            if uid in self.metadata.pre_encoded:
+                os.remove(os.path.join(self.folders.encoded_users, uid))
                 self.metadata.pre_encoded.pop(uid)
 
 
-    def _checkModifiedUser(self, encoded_file) -> bool:
+    def _isModifiedUser(self, encoded_file) -> bool:
         with open(os.path.join(self.folders.encoded_users, encoded_file), 'rb') as _file:
-            user_encoded = pickle.load(_file)
+            encoded_user = pickle.load(_file)
         
         user_folder = self.metadata.pre_encoded[encoded_file]
         with open(os.path.join(self.folders.raw, f'{user_folder}/user.json'), 'rb') as _file:
             user_data = json.load(_file)
         
-        if not user_encoded['user_data'] == user_data:
+        if not encoded_user['user_data'] == user_data:
             print('[!] Modified user: %s' % encoded_file)
             return True
         
@@ -183,7 +194,7 @@ class Database:
             with open(encoded_user_path, 'rb') as _file:
                     _data = pickle.load(_file)
                 
-            if self._checkModifiedUser(uid):
+            if self._isModifiedUser(uid):
                 modified_users.append([uid, user_folder])
             
             else:
