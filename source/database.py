@@ -72,9 +72,7 @@ class Database:
     
 
     def _createObject(self, name: str, d: dict) -> object:
-        obj = type(name, (object,), d)
-        
-        return obj
+        return type(name, (object,), d)
 
 
     def _addUser(self, **user_data: dict) -> None:
@@ -151,7 +149,7 @@ class Database:
         return False
 
 
-    def _encodeUser(self, user_folder: str, return_user=False) -> dict:
+    def _encodeUser(self, user_folder: str, return_user: bool) -> dict:
         path = os.path.join(self.folders.raw, user_folder)
         
         with open(os.path.join(path, 'user.json'), 'r') as _file:
@@ -182,7 +180,7 @@ class Database:
         self._checkPreEncoded()
         for user_folder in os.listdir(self.folders.raw):
             if user_folder not in self.metadata.pre_encoded.values():
-                self._encodeUser(user_folder)
+                self._encodeUser(user_folder, return_user=False)
         self._updateMetadata()
 
 
@@ -202,7 +200,7 @@ class Database:
             
         for uid, user_folder in modified_users:
             self._removeUser(uid)
-            _data = self._encodeUser(user_folder, True)
+            _data = self._encodeUser(user_folder, return_user=True)
             self._addUser(**_data)
 
         self._updateMetadata()

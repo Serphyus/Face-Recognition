@@ -1,7 +1,6 @@
 {
     "DatabaseConfig": {
         "faceEncodingArgs": {
-            "model": "large",
             "num_jitters": 10
         }
     },

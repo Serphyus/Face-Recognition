@@ -64,7 +64,7 @@ class FaceRecognition:
 
                         cv2.rectangle(frame, (left, bottom), (right, bottom + 25), self.config.lineColor, -1)
                         cv2.putText(frame, name, (left + rectangleOffset, bottom + 20), fontFace, fontScale, fontColor, 1, cv2.LINE_AA)
-                    
+            
             cv2.imshow(self.config.window_name, frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
@@ -77,4 +77,4 @@ class FaceRecognition:
 
 if __name__ == "__main__":
     fr = FaceRecognition(os.path.abspath(os.path.dirname(__file__)))
-    fr.mainLoop(camera_type='external')
+    fr.mainLoop(camera_type=['integrated', 'external'][int(input('1) integrated\n2) external\n> ')) - 1])
