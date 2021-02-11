@@ -5,6 +5,7 @@ import numpy as np
 import face_recognition
 from random import random
 from contextlib import suppress
+from types import SimpleNamespace
 
 
 
@@ -39,10 +40,11 @@ class Database:
         self.Users = []
         
         with open(os.path.join(self.path, 'config.json'), 'r') as _file:
-            self.config = self._createObject('config', json.load(_file)['DatabaseConfig'])
+            _raw = json.load(_file)
+            self.config = SimpleNamespace(**_raw)
 
-        self.folders = self._createObject('folders',
-            {
+        self.folders = SimpleNamespace(
+            **{
                 'root': os.path.join(self.path, 'database'),
                 'raw': os.path.join(self.path, 'database/raw'),
                 'encoded': os.path.join(self.path, 'database/encoded'),
@@ -71,8 +73,8 @@ class Database:
             print('\nDatabase Successfully Setup')
     
 
-    def _createObject(self, name: str, d: dict) -> object:
-        return type(name, (object,), d)
+    def _createMetaObject(self, d: dict) -> object:
+        return type('meta_data', (object,), d)
 
 
     def _addUser(self, **user_data: dict) -> None:
@@ -87,15 +89,11 @@ class Database:
 
 
     def _getMetadata(self) -> None:
-        self.metadata = self._createObject('metadata',
-            {
-                'pre_encoded': {}
-            }
-        )
+        self.metadata = self._createMetaObject({'pre_encoded': {}})
         
         with suppress(FileNotFoundError, EOFError):
             with open(os.path.join(self.folders.encoded, 'meta.pkl'), 'rb') as _file:
-                self.metadata = self._createObject('metadata', pickle.load(_file))
+                self.metadata = self._createMetaObject(pickle.load(_file))
 
 
     def _updateMetadata(self) -> None:
@@ -156,7 +154,7 @@ class Database:
             user_data = json.load(_file)
 
         face_image = face_recognition.load_image_file(os.path.join(path, 'face.jpg'))
-        face_encoding = face_recognition.face_encodings(face_image, **self.config.faceEncodingArgs)[0]
+        face_encoding = face_recognition.face_encodings(face_image, **self.config.DatabaseConfig.faceEncodingArgs)[0]
 
         user = {
             'user_data': user_data,
